@@ -1,0 +1,197 @@
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: #e3e3e3;
+  overflow-x: hidden;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+
+#neutralinoapp {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-auto-rows: minmax(300px, auto);
+    gap: min(1vh, 20px);
+    padding: 20px;
+}
+
+/* Overlay */
+
+#loading-overlay {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8); 
+  z-index: 99999999; 
+}
+
+.loading-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: white;
+}
+
+
+
+/* Header */
+
+
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999999;
+  background-color: rgba(49, 49, 49, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+#searchBar {
+  display: block;
+  width: 25%;
+  height: 3vh; 
+  border: solid 2px white;
+  border-radius: 8px;
+  text-align: center;
+}
+
+footer > p {
+  color: white;
+}
+
+@media (max-width: 680px) {
+  #searchBar {
+    width: 50%;
+  }
+}
+
+
+/**/
+
+#container {
+    position: relative;
+    padding-bottom: 5vh;
+  }
+
+  #emulatorRunning {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 25vw;
+    max-width: 100%;
+    background-color: #fff;
+    padding: 10px;
+    z-index: 999999; 
+    text-align: center;
+    margin-top: 10px;
+    border: 2px solid black;
+    display: none;
+  }
+
+  @media (max-width: 680px) {
+    #emulatorRunning {
+      width: 100vw;
+      margin-top: 0;
+    }
+  }
+
+  #overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    z-index: 999998; 
+    pointer-events: none;
+    display: none;
+  }
+
+/* HTML Rom Styling */
+
+.romContainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-width: 200px;
+    min-height: 300px;
+    border: 2px solid black;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    transition: transform 0.2s ease, filter 0.2s ease;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Hovering / tooltip */
+
+.romContainer:hover {
+    transform: scale(1.1);
+    z-index: 9999;
+}
+
+
+.tooltip {
+    text-align: center;
+    padding-bottom: 5%;
+}
+
+.tooltip > p {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 1rem;
+    font-size: x-large;
+    border-radius: 10px;
+}
+
+.tooltip > div > button {
+    background-color: rgba(102, 255, 102, 0.9);
+    font-size: x-large;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.compressedFile {
+  background-color: rgba(255, 102, 102, 0.9) !important;
+  cursor: not-allowed !important;
+}
+
+
+
+
+.romContainer.compressed-overlay {
+  position: relative;
+}
+
+.romContainer.compressed-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8); /* Change the color and opacity as needed */
+  transition: background-color 0.3s ease; 
+  pointer-events: none;
+}
+
+.romContainer.romContainer.compressed-overlay:hover::before {
+  background-color: rgba(0, 0, 0, 0.1);
+}

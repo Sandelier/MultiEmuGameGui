@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>NeutralinoJs sample app</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="container">
+
+    <div id="loading-overlay">
+      <div class="loading-text">Loading...</div>
+    </div>
+
+    <div id="emulatorRunning"></div>
+    <div id="overlay"></div>
+    <div id="neutralinoapp"></div>
+
+
+    <footer>
+      <p id="gamesFound">Roms found: loading..</p>
+      <input type="text" id="searchBar">
+      <p id="storageUsed">Storage: Loading..</p>
+    </footer>
+  </div>
+  <!-- Neutralino.js client. This file is gitignored, 
+    because `neu update` typically downloads it.
+    Avoid copy-pasting it. 
+    -->
+  <script src="js/neutralino.js"></script>
+  <!-- Your app's source files -->
+  <script src="js/main.js"></script>
+  <script src="js/dynamicRomCreator.js"></script>
+  <script src="js/startEmulator.js"></script>
+  <script src="js/compressBtn.js"></script>
+  <script src="js/footerUpdate.js"></script>
+</body>
+</html>
