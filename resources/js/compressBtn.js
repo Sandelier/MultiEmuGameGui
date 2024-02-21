@@ -80,9 +80,9 @@ async function executeCompressionCommand(command, fileData, clickedBtn) {
 
                         updateRomFilePath(fileData, clickedBtn);
 
-
                         storageSizes[fileData.path] = {
-                            size: fileSize
+                            size: fileSize,
+                            sizeElement: storageSizes[oldPath].sizeElement
                         };
 
                         delete storageSizes[oldPath];
@@ -93,6 +93,12 @@ async function executeCompressionCommand(command, fileData, clickedBtn) {
                             storageSizes[fileData.path].uncompressedSize = await getUncompressedSize(fileData.path); 
                         }
 
+                        if (storageSizes[fileData.path].uncompressedSize) {
+                            storageSizes[fileData.path].sizeElement.textContent = `${formatSize(fileSize)} / ${formatSize(storageSizes[fileData.path].uncompressedSize)}`;
+                        } else {
+                            storageSizes[fileData.path].sizeElement.textContent = `${formatSize(fileSize)}`;
+                        }
+                        
                         updateStorage();
 
                     } else {

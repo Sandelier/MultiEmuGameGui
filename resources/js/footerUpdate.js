@@ -97,21 +97,29 @@ const storageSizes = {};
 const rarPath = "C:\\Program Files\\WinRAR\\RAR.exe";
 
 async function getCurrentUsedStorage(pathsArray) {
-    for (const filePath of pathsArray) {
+    for (const filePath in pathsArray) {
         try {
             const stats = await Neutralino.filesystem.getStats(filePath);
             const fileSize = stats.size;
+
+            const fileElement = pathsArray[filePath];
             
             storageSizes[filePath] = {
-                size: fileSize
+                size: fileSize,
+                sizeElement: fileElement
             };
+
+
 
             if (filePath.endsWith('.rar')) {
                 storageSizes[filePath].uncompressedSize = await getUncompressedSize(filePath); 
+                fileElement.textContent = `${formatSize(fileSize)} / ${formatSize(storageSizes[filePath].uncompressedSize)}`;
+            } else {
+                fileElement.textContent = formatSize(fileSize);
             }
 
         } catch (error) {
-            console.log(`Error occured while trying to get stats. ${error}`);
+            console.log(`Error occurred while trying to get stats. ${error}`);
         }
     }
 

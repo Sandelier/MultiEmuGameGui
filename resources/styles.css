@@ -140,6 +140,16 @@ footer > p {
     background-repeat: no-repeat;
 }
 
+.fileSize {
+  font-size: large !important;
+  padding: 0.4rem !important;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+}
+
 /* Hovering / tooltip */
 
 .romContainer:hover {

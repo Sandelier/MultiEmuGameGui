@@ -72,6 +72,13 @@ function createTooltip(fileData) {
     const tooltip = document.createElement('div');
     tooltip.classList.add('tooltip');
 
+    if (!fileData.executable) {
+        const fileSize = document.createElement('p');
+        fileSize.classList.add('fileSize');
+        fileSize.textContent = '';
+        tooltip.appendChild(fileSize);
+    }
+
     const fileName = document.createElement('p');
     fileName.textContent = fileData.entry;
     tooltip.appendChild(fileName);
@@ -154,26 +161,21 @@ function filterFiles(data, extension) {
 async function getAllRoms() {
     try {
         const fragment = document.createDocumentFragment();
-        const romPaths = []; 
+        const romPaths = {}; 
         for (const folderToSearch in romStructure) {
             const extension = romStructure[folderToSearch].extension;
             const data = await Neutralino.filesystem.readDirectory(`${driveLetter}:/Gaming/Roms/${folderToSearch}`, { recursive: true });
             if (data.length > 0) {
-
                 const filteredData = filterFiles(data, extension);
                 filteredData.forEach(item => {
-
                     item.entry = item.entry.split('.').slice(0, -1).join('.'); 
                     item.entry = item.entry.replace(/\([^)]*\)/g, ''); 
-
                     if (item.path.endsWith(".rar")) {
                         item.compressed = true;
                     }
-
-                    romPaths.push(item.path);
-
                     const fileElement = createFileElement(item);
 
+                    romPaths[item.path] = fileElement.querySelector('.fileSize');
                     fragment.appendChild(fileElement);
                 });
             } else {
@@ -182,9 +184,7 @@ async function getAllRoms() {
         }
         const mainContainer = document.getElementById('neutralinoapp');
         mainContainer.appendChild(fragment);
-
         await getCurrentUsedStorage(romPaths);
-
     } catch (error) {
         console.error("An error occurred:", error);
     }
