@@ -35,6 +35,9 @@ PNG is the only format thats supported and i keep the image resolution to someth
 
 # Dependencies
 
+## Winrar
+ - Winrar is needed if you want the compression/uncompression functionality.
+
 ## Neutralino
 - `npm install -g @neutralinojs/neu`
 
