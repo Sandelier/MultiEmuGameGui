@@ -45,7 +45,7 @@ html::-webkit-scrollbar {
 
 
 
-/* Header */
+/* Footer */
 
 
 footer {
@@ -77,6 +77,46 @@ footer > p {
   #searchBar {
     width: 50%;
   }
+}
+
+#slider {
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  z-index: 9999999;
+}
+#slider:focus {
+  outline-color: #f8b195;
+}
+
+#slider::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: rgb(246, 114, 128);
+}
+
+#slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 2px solid #f8b195;
+  border-radius: 50%;
+  height: 20px;
+  width: 20px;
+  position: relative;
+  bottom: 8px;
+  background: #222 center no-repeat;
+  background-size: 50%;
+  box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.4);
+  cursor: grab;
+}
+
+#slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
 }
 
 
