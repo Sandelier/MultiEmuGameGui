@@ -27,8 +27,8 @@ Gui for emulators and their respective games to be easily launched. Supports bat
   
 
 - Emulators
-	- Citra
-	- melonDs
+	- Citra folder
+	- melonDs folder
 ```
 
 PNG is the only format thats supported and i keep the image resolution to something like 300x300 for square cartridges and something like 256 x 363 for vertical cartidges.
