@@ -54,8 +54,3 @@ PNG is the only format thats supported and i keep the image resolution to someth
 ## Icon credits
 
 - `trayIcon.png` - Made by [Freepik](https://www.freepik.com) and downloaded from [Flaticon](https://www.flaticon.com)
-=======
-ReadME WIP.
-
-I made this for me but with little bit modifications you can make this work on your pc also. I will be writing more instructions later on.
->>>>>>> 55a06e486908429aa27f3363c9d48c0c3f622a4f
