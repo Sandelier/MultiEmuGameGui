@@ -43,7 +43,22 @@ async function windowInitilization() {
 
 windowInitilization();
 
+
+const loadingText = document.querySelector('.loading-text p');
+async function updateLoadingText(text) {
+    loadingText.textContent = text;
+}
+
 function hideShowLoading(state) {
     const loadingOverlay = document.getElementById('loading-overlay');
     loadingOverlay.style.display = state ? 'block' : 'none';
+}
+
+const progressFill = document.querySelector('.progress-fill');
+const progressBar = document.querySelector('.progress-bar');
+
+function setProgressBar(amount, maximum) {
+    progressBar.style.display = "block";
+    const progress = (amount / maximum) * 100;
+    progressFill.style.width = `${progress}%`;
 }

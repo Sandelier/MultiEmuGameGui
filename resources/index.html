@@ -8,8 +8,36 @@
 <body>
   <div id="container">
 
+    <header>
+      <div class="checkbox-stack">
+        <label class="checkbox-row">
+          <input type="checkbox" data-id="complete">
+          Completed
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" data-id="playing">
+          Playing
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" data-id="unplayed">
+          Unplayed
+        </label>
+      </div>
+
+      <p id="shownRoms">Shown roms: 0</p>
+
+      <p id="timePlayed">Time played: 0h</p>
+
+    </header>
+
     <div id="loading-overlay">
-      <div class="loading-text">Loading...</div>
+      <div class="loading-text">
+        <p>Loading...</p>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+      </div>
+
     </div>
 
     <div id="emulatorRunning"></div>
@@ -38,5 +66,6 @@
   <script src="js/compressBtn.js"></script>
   <script src="js/footerUpdate.js"></script>
   <script src="js/scaleSlider.js"></script>
+  <script src="js/header.js"></script>
 </body>
 </html>

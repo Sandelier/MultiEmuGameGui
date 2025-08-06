@@ -96,33 +96,48 @@ const storageSizes = {};
 
 const rarPath = "C:\\Program Files\\WinRAR\\RAR.exe";
 
-async function getCurrentUsedStorage(pathsArray) {
-    for (const filePath in pathsArray) {
+async function getCurrentUsedStorage(pathsObject) {
+    const pathsArray = Object.keys(pathsObject);
+
+    // Start progress
+    for (let i = 0; i < pathsArray.length; i++) {
+        const filePath = pathsArray[i];
+        updateLoadingText(`Retrieving rom sizes. (${i + 1}, ${pathsArray.length})`);
+        //setProgressBar(i, pathsArray.length);
+
         try {
             const stats = await Neutralino.filesystem.getStats(filePath);
             const fileSize = stats.size;
+            const fileElement = pathsObject[filePath];
 
-            const fileElement = pathsArray[filePath];
-            
             storageSizes[filePath] = {
                 size: fileSize,
                 sizeElement: fileElement
             };
 
-
-
             if (filePath.endsWith('.rar')) {
-                storageSizes[filePath].uncompressedSize = await getUncompressedSize(filePath); 
-                fileElement.textContent = `${formatSize(fileSize)} / ${formatSize(storageSizes[filePath].uncompressedSize)}`;
+                fileElement.textContent = `${formatSize(fileSize)} / ...`;
             } else {
                 fileElement.textContent = formatSize(fileSize);
             }
-
         } catch (error) {
             console.log(`Error occurred while trying to get stats. ${error}`);
         }
     }
 
+    updateLoadingText(`Retrieving rom uncompressed sizes.`);
+    const rarFiles = pathsArray.filter(p => p.endsWith('.rar'));
+    const uncompressedSizes = await getAllUncompressedSizes(pathsArray);
+
+    rarFiles.forEach((filePath, index) => {
+        const fileElement = pathsObject[filePath];
+        const fileSize = storageSizes[filePath].size;
+        const uncompressedSize = uncompressedSizes[index];
+
+        storageSizes[filePath].uncompressedSize = uncompressedSize;
+        fileElement.textContent = `${formatSize(fileSize)} / ${formatSize(uncompressedSize)}`;
+    });
+    
     updateStorage();
 }
 
@@ -153,15 +168,61 @@ function getSizeFromArchiveDetails(details) {
     return size;
 }
 
+
+
+
+
+
+// Made it cache the results since its quite an expensive call which took us before multiple seconds to finish for like 40 roms.
+
+const cacheFilePath = 'uncompressedSizes.json';
+
+async function loadCache() {
+    try {
+        const files = await Neutralino.filesystem.readDirectory('.');
+        if (files.find(f => f.entry === cacheFilePath)) {
+            const data = await Neutralino.filesystem.readFile(cacheFilePath);
+            return JSON.parse(data);
+        }
+    } catch (e) {
+        console.warn('Error reading cache:', e);
+    }
+    return {};
+}
+
+async function saveCache(cache) {
+    try {
+        await Neutralino.filesystem.writeFile(cacheFilePath, JSON.stringify(cache, null, 2));
+    } catch (e) {
+        console.error('Error writing cache:', e);
+    }
+}
+
 async function getUncompressedSize(filePath) {
     try {
-        let info = await Neutralino.os.execCommand(`"${rarPath}" l -s "${filePath}"`, {});
-        let uncompressedSize = getSizeFromArchiveDetails(info.stdOut);
-
-        return uncompressedSize;
+        let info = await Neutralino.os.execCommand(`"${rarPath}" l -s "${filePath}"`);
+        return getSizeFromArchiveDetails(info.stdOut);
     } catch (error) {
         console.log(error);
         return null;
     }
+}
 
+async function getAllUncompressedSizes(pathsArray) {
+    const cache = await loadCache();
+    const rarFiles = pathsArray.filter(p => p.endsWith('.rar'));
+
+    const results = await Promise.all(rarFiles.map(async (filePath) => {
+        if (cache[filePath] != null) {
+            return cache[filePath];
+        }
+        const size = await getUncompressedSize(filePath);
+        if (size != null) {
+            cache[filePath] = size;
+        }
+        return size;
+    }));
+
+    await saveCache(cache);
+    return results;
 }

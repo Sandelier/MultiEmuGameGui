@@ -6,41 +6,66 @@ const romStructure = {
     "3DS - Citra": {
         "extension": ".3ds",
         // Every emulator uses "exePath romPath" to launch the rom
-        "command": ":/Gaming/Portable emulators/Citra/citra-qt.exe"
+        "command": "/Gaming/Rom gaming/Portable emulators/Citra/citra-qt.exe"
     },
     "DS - MelonDS": {
         "extension": ".nds",
-        "command": ":/Gaming/Portable emulators/melonDs/melonDS.exe"
+        "command": "/Gaming/Rom gaming/Portable emulators/melonDs/melonDS.exe"
     },
     "Gameboy advance - mGBA": {
         "extension": ".gba",
-        "command": ":/Gaming/Portable emulators/mGBA-0.10.3-win64/mGBA.exe"
+        "command": "/Gaming/Rom gaming/Portable emulators/mGBA-0.10.3-win64/mGBA.exe"
+    },
+    "Gameboy Color - mGBA": {
+        "extension": ".gbc",
+        "command": "/Gaming/Rom gaming/Portable emulators/mGBA-0.10.3-win64/mGBA.exe"
     },
     "Gamecube - Dolphin": {
         "extension": ".rvz",
-        "command": ":/Gaming/Portable emulators/Dolphin-x64/Dolphin.exe"
+        "command": "/Gaming/Rom gaming/Portable emulators/Dolphin-x64/Dolphin.exe"
     },
     "PS1 - Duckstation": {
         "extension": ".bin",
-        "command": ":/Gaming/Portable emulators/duckstation-windows-x64-release/duckstation-qt-x64-ReleaseLTCG.exe"
+        "command": "/Gaming/Rom gaming/Portable emulators/duckstation-windows-x64-release/duckstation-qt-x64-ReleaseLTCG.exe"
     },
     "PS2 - ppcsx2": {
         "extension": ".iso",
-        "command": ":/Gaming/Portable emulators/pcsx2-v1.7.5552-windows-x64-Qt/pcsx2-qt.exe"
+        "command": "/Gaming/Rom gaming/Portable emulators/pcsx2-v1.7.5552-windows-x64-Qt/pcsx2-qt.exe"
     },
     "PSP - PPSSPP": {
         "extension": ".iso",
-        "command": ":/Gaming/Portable emulators/ppsspp_win/PPSSPPWindows64.exe"
+        "command": "/Gaming/Rom gaming/Portable emulators/ppsspp_win/PPSSPPWindows64.exe"
     },
     "Wii - Dolphin": {
         "extension": ".rvz",
-        "command": ":/Gaming/Portable emulators/Dolphin-x64/Dolphin.exe"
+        "command": "/Gaming/Rom gaming/Portable emulators/Dolphin-x64/Dolphin.exe"
+    },
+    "Switch - Ryujinx": {
+        "extension": ".nsp",
+        "command": "/Gaming/Rom gaming/Portable emulators/ryujinx-1.1.1403-win_x64/Ryujinx.exe",
     }
 };
+
+
+
 
 function createFileElement(fileData) {
     const fileContainer = document.createElement('div');
     fileContainer.classList.add('romContainer');
+
+    const hour = 60 * 60 * 1000;
+    
+    if (gameTimeData[fileData.entry] && gameTimeData[fileData.entry].state === "complete") {
+        fileContainer.style.border = "2px solid lightgreen";
+        fileContainer.dataset.state = gameTimeData[fileData.entry].state;
+
+    } else if (gameTimeData[fileData.entry] && gameTimeData[fileData.entry].time >= hour) {
+        fileContainer.style.border = "2px solid #ffff97";
+        fileContainer.dataset.state = "playing";
+
+    } else {
+        fileContainer.dataset.state = "unplayed";
+    }
 
     // tooltip
     const tooltip = createTooltip(fileData);
@@ -80,7 +105,20 @@ function createTooltip(fileData) {
     }
 
     const fileName = document.createElement('p');
+    fileName.classList.add('fileName');
     fileName.textContent = fileData.entry;
+
+    if (gameTimeData[fileData.entry] && typeof gameTimeData[fileData.entry].time === 'number') {
+        fileName.appendChild(document.createElement('br'));
+    
+        const totalSeconds = Math.floor(gameTimeData[fileData.entry].time / 1000);
+        const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+        const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+        const seconds = String(totalSeconds % 60).padStart(2, '0');
+    
+        fileName.append(`${hours}:${minutes}:${seconds}`);
+    }
+
     tooltip.appendChild(fileName);
 
 
@@ -101,8 +139,8 @@ function createToolTipButton(fileData) {
 
     playButton.textContent = fileData.executable ? 'Play Exe' : 'Play Rom';
 
-    // rvz files are already compressed a lot so by compressing the file you wont save a lot of size which is why i disabled the zip button for rvz files. I tried compressing multiple rvz files and i only noticed an difference of about 5% file size or less.
-    if (!fileData.executable && !fileData.path.endsWith(".rvz")) {
+    // rvz and nsp files are already compressed a lot so by compressing the file you wont save a lot of size which is why i disabled the zip button for rvz files. I tried compressing multiple rvz files and i only noticed an difference of about 5% file size or less.
+    if (!fileData.executable && !fileData.path.endsWith(".rvz") && !fileData.path.endsWith(".nsp")) {
         const zipButton = document.createElement('button');
         zipButton.classList.add('zipBtn');
 
@@ -153,10 +191,17 @@ function setBackgroundImage(filePath, fileContainer) {
 /* Retrieving roms */
 
 function filterFiles(data, extension) {
+    const extensions = Array.isArray(extension) ? extension : [extension];
+
     return data.filter(item => {
-        return item.type === "FILE" && item.entry.endsWith(extension) || item.entry.endsWith(".rar");
+        return item.type === "FILE" && (
+            extensions.some(ext => item.entry.endsWith(ext)) ||
+            item.entry.endsWith(".rar")
+        );
     });
 }
+
+
 
 async function getAllRoms() {
     try {
@@ -164,7 +209,7 @@ async function getAllRoms() {
         const romPaths = {}; 
         for (const folderToSearch in romStructure) {
             const extension = romStructure[folderToSearch].extension;
-            const data = await Neutralino.filesystem.readDirectory(`${driveLetter}:/Gaming/Roms/${folderToSearch}`, { recursive: true });
+            const data = await Neutralino.filesystem.readDirectory(`../Roms/${folderToSearch}`, { recursive: true });
             if (data.length > 0) {
                 const filteredData = filterFiles(data, extension);
                 filteredData.forEach(item => {
@@ -174,14 +219,15 @@ async function getAllRoms() {
                         item.compressed = true;
                     }
                     const fileElement = createFileElement(item);
-
                     romPaths[item.path] = fileElement.querySelector('.fileSize');
                     fragment.appendChild(fileElement);
+
                 });
             } else {
                 console.error(`No directories found in the ${folderToSearch} directory.`);
             }
         }
+
         const mainContainer = document.getElementById('neutralinoapp');
         mainContainer.appendChild(fragment);
         await getCurrentUsedStorage(romPaths);
@@ -193,10 +239,10 @@ async function getAllRoms() {
 async function getAllExecutables() {
     try {
         const fragment = document.createDocumentFragment();
-        const data = await Neutralino.filesystem.readDirectory(`${driveLetter}:/Gaming/Executables/Shortcuts`, { recursive: true });
+        const data = await Neutralino.filesystem.readDirectory(`../Executables/Shortcuts`, { recursive: true });
         if (data.length > 0) {
 
-            const filteredData = filterFiles(data, ".bat");
+            const filteredData = filterFiles(data, [".bat", ".exe"]);
             filteredData.forEach(item => {
 
                 item.entry = item.entry.split('.').slice(0, -1).join('.'); 
@@ -204,7 +250,6 @@ async function getAllExecutables() {
                 item.executable = true;
                 
                 const fileElement = createFileElement(item);
-
                 fragment.appendChild(fileElement);
             });
         } else {
@@ -212,8 +257,6 @@ async function getAllExecutables() {
         }
         const mainContainer = document.getElementById('neutralinoapp');
         mainContainer.appendChild(fragment);
-        fragment.childNodes.length
-
     } catch (error) {
         console.error("An error occurred:", error);
     }
@@ -221,6 +264,31 @@ async function getAllExecutables() {
 
 
 
+let gameTimeData = {};
+
+async function loadGameTime() {
+    try {
+        const content = await Neutralino.filesystem.readFile("gameTime.json");
+        gameTimeData = JSON.parse(content || '{}');
+
+        let totalTime = 0;
+        for (const game of Object.values(gameTimeData)) {
+            if (typeof game.time === 'number') {
+                totalTime += game.time;
+            }
+        }
+
+        const hours = Math.floor(totalTime / (1000 * 60 * 60));
+        const minutes = Math.floor((totalTime % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((totalTime % (1000 * 60)) / 1000);
+
+        const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        console.log("Total time:", formattedTime);
+    } catch (error) {
+        console.log(error);
+        await Neutralino.filesystem.writeFile("gameTime.json", JSON.stringify({}, null, 2));
+    }
+}
 
 let driveLetter;
 
@@ -229,9 +297,13 @@ async function domInitiilization() {
         const data = await Neutralino.os.execCommand('cmd /c echo %cd%', {});
         driveLetter = data.stdOut.trim().charAt(0).toUpperCase();
 
+        await loadGameTime();
+        updateLoadingText(`Finding games...`);
         await Promise.all([getAllRoms(), getAllExecutables()]);
-
         hideShowLoading(false);
+
+        const finished = new CustomEvent('finished');
+        document.body.dispatchEvent(finished);
 
     } catch (error) {
         console.error('Failed to retrieve drive letter.', error);
